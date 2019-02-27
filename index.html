@@ -297,11 +297,12 @@
                     if (diff_time < 0) {
                         console.log("ERROR (" + nb_notif + ") : "+ diff_time + " || " + atime + " || " + old_time);
                         console.log("ERROR " + new Uint8Array(buffer));
+                    } else {
+                        sum_delay += diff_time;
+                        nb_notif += 1;
                     }
-                    sum_delay += diff_time;
-                    nb_notif += 1;
                     cur_date = +Date.now() - start_date;
-                    sensors_data.push({'received_time': cur_date, 'time': atime, 'data': buffer});
+                    sensors_data.push({'received_time': cur_date, 'time': atime, 'data': buffer});                    
                 }
                 old_time = atime;
             }
