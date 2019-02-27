@@ -7,10 +7,8 @@
             var connected_server;
 
             // presence of services of characteristics
-            var has_frame_service = false;
-            var has_frame_data = false;
-
-            var has_info_service = false;
+            var has_device_service = false;
+            var has_frame_data = false;            
             var has_info_data = false;
 
             // characteristic UUIDs
@@ -52,7 +50,7 @@
 
                 var options = {
                     filters: [ {namePrefix: 'Panda'}],
-                    optionalServices: [DEVICE_SERVICE],
+                    // optionalServices: [DEVICE_SERVICE],
                 }
 
                 navigator.bluetooth.requestDevice(options)
@@ -76,6 +74,46 @@
                 console.log("toggleSensorNotifications");
             }
 
+            function discoverSvcsAndChars() {
+                console.log("discoverSvcsAndChars server=" + connected_server);
+                connected_server.getPrimaryServices()
+                    .then(services => {
+                        has_device_service = false;
+
+                        services_discovered = 0;
+                        service_count = services.length;
+                        console.log("Got " + service_count + " services");
+
+                        services.forEach(service => {
+                            if (service.uuid == DEVICE_SERVICE) {
+                                has_device_service = true;
+                            }
+                            console.log('Getting Characteristics for service ' + service.uuid);
+                            service.getCharacteristics().then(characteristics => {
+                                console.log('> Service: ' + service.uuid);
+                                services_discovered++;
+                                characteristics_discovered = 0;
+                                characteristics_count = characteristics.length;
+                                characteristics.forEach(characteristic => {
+                                    characteristics_discovered++;
+                                    console.log('>> Characteristic: ' + characteristic.uuid);
+                                    if (characteristic.uuid == FRAME_UUID) {
+                                        frame_data = characteristic;
+                                        has_frame_data = true;
+                                    }
+                                    if (characteristic.uuid = INFO_UUID) {
+                                        info_data = characteristic;
+                                        has_info_data = true;
+                                    }
+                                    if (services_discovered == service_count && characteristics_discovered == characteristics_count) {
+                                        console.log("FINISHED DISCOVERY");
+                                        setDiscoveryStatus(true);
+                                    }
+                                })
+                            })
+                        })
+                    })
+            }
             function connect() {
                 if (connected == false) {
                     console.log("connecting");
@@ -89,6 +127,7 @@
                             selected_device.addEventListener(
                                 'gattserverdisconnected',
                                 onDisconnected);
+                                discoverSvcsAndChars();
                         },
                         function (error) {
                             console.log("ERROR: could not connect - " + error);
