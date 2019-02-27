@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <script>
+            function discoverDevicesOrDisconnect() {
+                console.log("discoverDevicesOrDisconnect");
+            }
+            function discoverDevices() {
+                console.log("discoverDevices");
+            }
+            function readInfo() {
+                console.log("readInfo");
+            }
+            function toogleSensorNotifications() {
+                console.log("toggleSensorNotifications");
+            }
+        </script>
+    </head>
+
+    <body>
+        <h1>Web Bluetooth</h1>
+        <h2>Status</h2>
+        <table border="1">
+            <tr>
+                <td>
+                    <b>Connected</b>
+                </td>
+                <td>
+                    <b>Service Discovery Completed</b>
+                </td>
+                <td>
+                    <b>Notifications</b>
+                </td>
+            </tr>
+            <tr>
+                <td id="status_connected">false</td>
+                <td id="status_discovered">false</td>
+                <td id="status_notifications">false</td>
+            </tr>
+        </table>
+        <h2>Device Discovery and Connection</h2>
+        <button id="btn_scan" onclick="discoverDevicesOrDisconnect()">Discover Devices</button>
+        <hr>
+        <h2>Reading and Writing</h2>
+        <h3>Read Characteristic</h3>
+        <button id="btn_readInfo" onclick="readInfo()">Read Info</button>
+        <div id="device_info"></div>
+        <h2>Notifications</h2>
+        <button id="btn_notify" onclick="toogleSensorNotifications()">Toggle Notifications</button>
+        <div id="frame_data"></div>
+    </body>
+</html>
