@@ -1,11 +1,54 @@
 <html>
     <head>
         <script>
+            var connected = false;
+            var services_discovered = false;
+            var selected_device;
+            var connected_server;
+
+            function setConnectedStatus(status) {
+                connected = status;
+                document.getElementById('status_connected').innerHTML = status;
+                if (status == true) {
+                    document.getElementById('btn_scan').innerHTML = "Disconnect";
+                } else {
+                    document.getElementById('btn_scan').innerHTML = "Discover Devices";
+                }
+            }
+
+            function setDiscoveryStatus(status) {
+                services_discovered = status;
+                document.getElementById('status_discovered').innerHTML = status;
+            }
+
             function discoverDevicesOrDisconnect() {
                 console.log("discoverDevicesOrDisconnect");
+                if (!connected) {
+                    discoverDevices();
+                } else {
+                    // TODO disconnect from the current device
+                }
+
             }
             function discoverDevices() {
                 console.log("discoverDevices");
+
+                var options = {
+                    acceptAllDevices: true
+                }
+
+                navigator.bluetooth.requestDevice(options)
+                .then(device => {
+                    console.log('> Name:      ' + device.name);
+                    console.log('> Id:        ' + device.id);
+                    console.log('> Connected: ' + device.gatt.connected);
+                    selected_device = device;
+                    console.log(selected_device);
+                })
+                .catch(error => {
+                    alert('ERROR: ' + error);
+                    console.log('ERROR : ' + error);
+                })
             }
             function readInfo() {
                 console.log("readInfo");
