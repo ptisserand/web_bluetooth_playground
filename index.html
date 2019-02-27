@@ -6,6 +6,22 @@
             var selected_device;
             var connected_server;
 
+            // presence of services of characteristics
+            var has_frame_service = false;
+            var has_frame_data = false;
+
+            var has_info_service = false;
+            var has_info_data = false;
+
+            // characteristic UUIDs
+            DEVICE_SERVICE = '0000f00d-0000-1000-8000-00805f9b34fb';
+            FRAME_UUID = '0000accc-1212-efde-1523-785fef13d123';            
+            INFO_UUID = '0000accb-1212-efde-1523-785fef13d123';
+
+            // cached characteristics
+            var frame_data;
+            var info_data;
+
             function setConnectedStatus(status) {
                 connected = status;
                 document.getElementById('status_connected').innerHTML = status;
@@ -26,7 +42,8 @@
                 if (!connected) {
                     discoverDevices();
                 } else {
-                    // TODO disconnect from the current device
+                    selected_device.gatt.disconnect();
+                    resetUI();
                 }
 
             }
@@ -34,7 +51,8 @@
                 console.log("discoverDevices");
 
                 var options = {
-                    filters: [ {namePrefix: 'Panda'}]
+                    filters: [ {namePrefix: 'Panda'}],
+                    optionalServices: [DEVICE_SERVICE],
                 }
 
                 navigator.bluetooth.requestDevice(options)
@@ -84,8 +102,15 @@
             function onDisconnected() {
                 setConnectedStatus(false);
                 setDiscoveryStatus(false);
-                document.getElementById('model_number').innerHTML = "";
-                document.getElementById('accelerometer_data').innerHTML = "";
+                document.getElementById('device_info').innerHTML = "";
+                document.getElementById('frame_data').innerHTML = "";
+            }
+
+            function resetUI() {
+                setConnectedStatus(false);
+                setDiscoveryStatus(false);
+                document.getElementById('device_info').innerHTML = "";
+                document.getElementById('frame_data').innerHTML = "";
             }
         </script>
     </head>
