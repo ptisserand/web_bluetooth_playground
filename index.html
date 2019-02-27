@@ -312,6 +312,45 @@
                 setNotificationsStatus(false);
                 document.getElementById('device_info').innerHTML = "";
             }
+
+            function encode(s) {
+            	var out = [];
+	            for ( var i = 0; i < s.length; i++ ) {
+		            out[i] = s.charCodeAt(i);
+	            }
+	            return new Uint8Array( out );
+            }
+
+            function exportJson(obj, file_name) {
+                let str = JSON.stringify(obj, null, 2);
+                let data = encode(str);
+                // what to return in order to show download window?
+                let el = document.getElementById("downloadAnchorElem");
+                let blob = new Blob([data], {
+                    type: 'application/octet-stream'
+                })
+                let url = URL.createObjectURL(blob);
+                el.setAttribute("href", url);
+                el.setAttribute("download", file_name);
+                el.click();
+
+            }
+
+            function exportFramesJson() {
+                let data = []
+                sensors_data.forEach(dd => {
+                    let raw_values = new Uint8Array(dd.data);
+                    values = [];
+                    raw_values.forEach(rr => { values.push(+rr)});
+                    data.push({'received_time': dd.received_time, 'time': dd.time, 'data': values});
+                });
+                return exportJson(data, "frames.json");
+            }
+
+            function exportDeltaTimeJson() {
+                let delta_time = computeDeltaTime(sensors_data);
+                return exportJson(delta_time, "deltaTime.json");
+            }
         </script>
 
         <script src="./data_analyze.js"></script>
@@ -358,9 +397,13 @@
         </div>
         <hr>
         <button id="btn_analyze" onclick="updateDataAnalyze(sensors_data)">Analyze Data</button>
+        <button id="exportFramesJSON" onclick="exportFramesJson();">Export frames json</button>
+        <button id="exportDeltaTimeJSON" onclick="exportDeltaTimeJson();">Export delta json</button>        
+       
         <div id="data_analyze">
             <div id="data_delta_frame_time"></div>
             <div id="data_received_time"></div>
         </div>
+        <a id="downloadAnchorElem" style="display:none"></a>
     </body>
 </html>
