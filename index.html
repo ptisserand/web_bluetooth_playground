@@ -50,7 +50,7 @@
 
                 var options = {
                     filters: [ {namePrefix: 'Panda'}],
-                    // optionalServices: [DEVICE_SERVICE],
+                    optionalServices: [DEVICE_SERVICE],
                 }
 
                 navigator.bluetooth.requestDevice(options)
@@ -69,6 +69,65 @@
             }
             function readInfo() {
                 console.log("readInfo");
+                // state validation
+                if (!connected) {
+                    alert("Error: Discover and connect to a device before using this function");
+                    return;
+                }
+                if (!services_discovered) {
+                    alert("Error: Service discovery has not yet completed");
+                    return;
+                }
+                if (!has_device_service) {
+                    alert("Error: The connected device does not contain the device service");
+                    return;
+                }
+                if (!has_info_data) {
+                    alert("Error: The connected device does not contain the device information characteristic");
+                    return;
+                }
+                info_data.readValue()
+                .then(value => {
+                    data = new Uint8Array(value.buffer);
+                    console.log(data);
+                    version = 'Software Version: ' + data[8] + '.' + data[9] + '.' + data[10];
+                    document.getElementById('device_info').innerHTML = version;
+                })
+                .catch(error => {
+                    console.log('Error: ' + error);
+                    alert('Error: ' + error);
+                    return;
+                });
+            }
+            function readFrame() {
+                console.log("readInfo");
+                // state validation
+                if (!connected) {
+                    alert("Error: Discover and connect to a device before using this function");
+                    return;
+                }
+                if (!services_discovered) {
+                    alert("Error: Service discovery has not yet completed");
+                    return;
+                }
+                if (!has_device_service) {
+                    alert("Error: The connected device does not contain the device service");
+                    return;
+                }
+                if (!has_frame_data) {
+                    alert("Error: The connected device does not contain the frame characteristic");
+                    return;
+                }
+                frame_data.readValue()
+                .then(value => {
+                    data = new Uint8Array(value.buffer);
+                    console.log(data);                    
+                })
+                .catch(error => {
+                    console.log('Error: ' + error);
+                    alert('Error: ' + error);
+                    return;
+                });
             }
             function toogleSensorNotifications() {
                 console.log("toggleSensorNotifications");
@@ -98,10 +157,12 @@
                                     characteristics_discovered++;
                                     console.log('>> Characteristic: ' + characteristic.uuid);
                                     if (characteristic.uuid == FRAME_UUID) {
+                                        console.log('>>> Frame');
                                         frame_data = characteristic;
                                         has_frame_data = true;
                                     }
-                                    if (characteristic.uuid = INFO_UUID) {
+                                    if (characteristic.uuid == INFO_UUID) {
+                                        console.log('>>> Info');
                                         info_data = characteristic;
                                         has_info_data = true;
                                     }
@@ -182,6 +243,9 @@
         <h3>Read Characteristic</h3>
         <button id="btn_readInfo" onclick="readInfo()">Read Info</button>
         <div id="device_info"></div>
+        <button id="btn_readFrame" onclick="readFrame()">Read Frame</button>
+        <div id="frame"></div>
+        
         <h2>Notifications</h2>
         <button id="btn_notify" onclick="toogleSensorNotifications()">Toggle Notifications</button>
         <div id="frame_data"></div>
