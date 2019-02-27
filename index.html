@@ -1,10 +1,14 @@
 <html>
     <head>
+        <script src="http://d3js.org/d3.v4.js"></script>        
+        
         <script>
             var connected = false;
             var services_discovered = false;
             var selected_device;
             var connected_server;
+
+            var notifications_enabled = false;
 
             // presence of services of characteristics
             var has_device_service = false;
@@ -20,6 +24,28 @@
             var frame_data;
             var info_data;
 
+            // for performance measure
+            var old_time = -1;
+            var max_delay = 0;
+            var sum_delay = 0;
+            var nb_notif = 0;
+            var start_date = 0;
+
+            var sensors_data = [];
+
+            function setNotificationsStatus(status) {
+                if (status == true) {
+                    start_date = +Date.now();
+                    sensors_data = [];
+                } else {
+                    old_time = -1;
+                    max_delay = 0;
+                    nb_notif = 0;
+                    sum_delay = 0;
+                }
+                notifications_enabled = status;
+                document.getElementById('status_notifications').innerHTML = status;
+            }
             function setConnectedStatus(status) {
                 connected = status;
                 document.getElementById('status_connected').innerHTML = status;
@@ -131,6 +157,48 @@
             }
             function toogleSensorNotifications() {
                 console.log("toggleSensorNotifications");
+                if (!connected) {
+                    alert("Error: Discover and connect to a device before using this functions");
+                    return;
+                }
+                if (!services_discovered) {
+                    alert("Error: Service discovery has not yet completed");
+                    return;
+                }
+                if (!has_device_service) {
+                    alert("Error: The connected device does not contain the device service");
+                    return;
+                }
+                if (!has_frame_data) {
+                    alert("Error: The connected device does not contain the frame data characteristic");
+                    return;
+                }
+                if (!notifications_enabled) {
+                    frame_data.startNotifications()
+                    .then(_ => {
+                        console.log('frame notifications started');
+                        setNotificationsStatus(true);
+                        frame_data.addEventListener('characteristicvaluechanged',
+                                                    onFrameData);
+                    })
+                    .catch(error => {
+                        console.log('Error: ' + error);
+                        alert('Error: ' + error);
+                        return;
+                    })
+                } else {
+                    frame_data.stopNotifications()
+                    .then(_ => {
+                        console.log('frame notifications stopped');
+                        updateMeasureData();
+                        setNotificationsStatus(false);
+                        frame_data.removeEventListener('characteristicvaluechanged',
+                                                    onFrameData);
+                    })
+                    .catch(error => {
+                        console.log('Could not stop frame_data notifications: ' + error);
+                    })
+                }
             }
 
             function discoverSvcsAndChars() {
@@ -199,16 +267,49 @@
                 }
             }
 
+            function updateMeasureData() {
+                mean_delay = sum_delay / nb_notif;        
+                document.getElementById('frame_max_delay').innerHTML = max_delay;
+                document.getElementById('frame_mean_delay').innerHTML = mean_delay;
+                document.getElementById('frame_nb_notif').innerHTML = nb_notif;
+            }
+
             function onDisconnected() {
                 setConnectedStatus(false);
                 setDiscoveryStatus(false);
                 document.getElementById('device_info').innerHTML = "";
                 document.getElementById('frame_data').innerHTML = "";
             }
+            
+            function onFrameData(event) {                
+                buffer = event.target.value.buffer;
+                dataview = new DataView(buffer);
+                atime = dataview.getUint32(18, false);
+                // console.log("atime: " + atime);
+                if (old_time != -1) {
+                    diff_time = atime - old_time;
+                    if (diff_time > max_delay) {
+                        max_delay = diff_time;
+                        console.log("New max delay: " + max_delay);
+                        // Update UI
+                        document.getElementById('frame_max_delay').innerHTML = max_delay;
+                    }
+                    if (diff_time < 0) {
+                        console.log("ERROR (" + nb_notif + ") : "+ diff_time + " || " + atime + " || " + old_time);
+                        console.log("ERROR " + new Uint8Array(buffer));
+                    }
+                    sum_delay += diff_time;
+                    nb_notif += 1;
+                    cur_date = +Date.now() - start_date;
+                    sensors_data.push({'received_time': cur_date, 'time': atime, 'data': buffer});
+                }
+                old_time = atime;
+            }
 
             function resetUI() {
                 setConnectedStatus(false);
                 setDiscoveryStatus(false);
+                setNotificationsStatus(false);
                 document.getElementById('device_info').innerHTML = "";
                 document.getElementById('frame_data').innerHTML = "";
             }
@@ -248,6 +349,15 @@
         
         <h2>Notifications</h2>
         <button id="btn_notify" onclick="toogleSensorNotifications()">Toggle Notifications</button>
+        <div>
+            Maximum delay: <span id="frame_max_delay"></span>
+        </div>        
+        <div>
+            Nb notifications: <span id="frame_nb_notif"></span>
+        </div>
+        <div>
+            Mean delay: <span id="frame_mean_delay"></span>
+        </div>
         <div id="frame_data"></div>
     </body>
 </html>
