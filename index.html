@@ -278,7 +278,6 @@
                 setConnectedStatus(false);
                 setDiscoveryStatus(false);
                 document.getElementById('device_info').innerHTML = "";
-                document.getElementById('frame_data').innerHTML = "";
             }
             
             function onFrameData(event) {                
@@ -312,9 +311,10 @@
                 setDiscoveryStatus(false);
                 setNotificationsStatus(false);
                 document.getElementById('device_info').innerHTML = "";
-                document.getElementById('frame_data').innerHTML = "";
             }
         </script>
+
+        <script src="./data_analyze.js"></script>
     </head>
 
     <body>
@@ -341,12 +341,9 @@
         <h2>Device Discovery and Connection</h2>
         <button id="btn_scan" onclick="discoverDevicesOrDisconnect()">Discover Devices</button>
         <hr>
-        <h2>Reading and Writing</h2>
-        <h3>Read Characteristic</h3>
+        <h2>Device info</h2>
         <button id="btn_readInfo" onclick="readInfo()">Read Info</button>
         <div id="device_info"></div>
-        <button id="btn_readFrame" onclick="readFrame()">Read Frame</button>
-        <div id="frame"></div>
         
         <h2>Notifications</h2>
         <button id="btn_notify" onclick="toogleSensorNotifications()">Toggle Notifications</button>
@@ -359,6 +356,11 @@
         <div>
             Mean delay: <span id="frame_mean_delay"></span>
         </div>
-        <div id="frame_data"></div>
+        <hr>
+        <button id="btn_analyze" onclick="updateDataAnalyze(sensors_data)">Analyze Data</button>
+        <div id="data_analyze">
+            <div id="data_delta_frame_time"></div>
+            <div id="data_received_time"></div>
+        </div>
     </body>
 </html>
