@@ -34,7 +34,7 @@
                 console.log("discoverDevices");
 
                 var options = {
-                    acceptAllDevices: true
+                    filters: [ {namePrefix: 'Panda'}]
                 }
 
                 navigator.bluetooth.requestDevice(options)
@@ -44,6 +44,7 @@
                     console.log('> Connected: ' + device.gatt.connected);
                     selected_device = device;
                     console.log(selected_device);
+                    connect();
                 })
                 .catch(error => {
                     alert('ERROR: ' + error);
@@ -55,6 +56,36 @@
             }
             function toogleSensorNotifications() {
                 console.log("toggleSensorNotifications");
+            }
+
+            function connect() {
+                if (connected == false) {
+                    console.log("connecting");
+                    selected_device.gatt.connect().then(
+                        function(server) {
+                            console.log("Connected to " + server.device.id);
+                            console.log("connected=" + server.connected);
+                            setConnectedStatus(true);
+                            connected_server = server;
+
+                            selected_device.addEventListener(
+                                'gattserverdisconnected',
+                                onDisconnected);
+                        },
+                        function (error) {
+                            console.log("ERROR: could not connect - " + error);
+                            alert("ERROR: could not connect - " + error);
+                            setConnectedStatus(false);
+                        }
+                    );                                           
+                }
+            }
+
+            function onDisconnected() {
+                setConnectedStatus(false);
+                setDiscoveryStatus(false);
+                document.getElementById('model_number').innerHTML = "";
+                document.getElementById('accelerometer_data').innerHTML = "";
             }
         </script>
     </head>
