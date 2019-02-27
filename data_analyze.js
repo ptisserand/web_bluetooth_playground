@@ -1,4 +1,13 @@
-// trust me baby
+function computeDeltaTime(data) {
+    let delta_time = [];
+    let old_time = data[0].time;
+    for (let i=1; i < data.length; ++i) {
+        delta_time.push(data[i].time - old_time);
+        old_time = data[i].time;
+    }
+    return delta_time;
+}
+
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 30, left: 60},
     width = 460 - margin.left - margin.right,
@@ -53,12 +62,7 @@ function updateDisplayReceivedTime(data) {
 function updateDisplayDeltaFrameTime(data) {
     let svg = getSVG("#data_delta_frame_time", "svg_data_delta_frame_time");
  
-    let delay_data = []
-    let old_time = data[0].time;
-    for (let i=1; i < data.length; ++i) {
-        delay_data.push(data[i].time - old_time);
-        old_time = data[i].time;
-    }
+    let delay_data = computeDeltaTime(data);
     
     // X axis
     let x = d3.scaleLinear()
@@ -85,6 +89,7 @@ function updateDisplayDeltaFrameTime(data) {
             .y(function(d) {return y(d)})
         );
 }
+
 function updateDataAnalyze(data) {
     if (data.length == 0) {
         alert("ERROR: No data available");
@@ -92,5 +97,4 @@ function updateDataAnalyze(data) {
     }
     updateDisplayDeltaFrameTime(data);
     updateDisplayReceivedTime(data);
-
 }
