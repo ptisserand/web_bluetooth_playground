@@ -9,9 +9,11 @@ function computeDeltaTime(data) {
 }
 
 // set the dimensions and margins of the graph
-var margin = {top: 10, right: 30, bottom: 30, left: 60},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+var margin = {top: 10, right: 30, bottom: 30, left: 60};
+//   width = 460 - margin.left - margin.right,
+//    height = 400 - margin.top - margin.bottom;
+var width;
+var height = 400 - margin.top - margin.bottom;
 
 function getSVG(cont_name, id) {
     // append the svg object to the body of the page
@@ -22,11 +24,14 @@ function getSVG(cont_name, id) {
     svg = d3.select(cont_name)
         .append("svg")
         .attr("id", id)
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("width", "100%")
+        .attr("height", height)
         .append("g")
         .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
+    el = svg.node().parentElement;
+    width = el.getBoundingClientRect().width - margin.left - margin.right;
+    // height = el.getBoundingClientRect().height - margin.top - margin.bottom;
     return svg;
 }
 
