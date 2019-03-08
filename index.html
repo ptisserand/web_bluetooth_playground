@@ -1,7 +1,11 @@
 <html>
     <head>
-        <script src="http://d3js.org/d3.v4.js"></script>        
-        
+        <script src="http://d3js.org/d3.v4.js"></script>
+
+        <script src="./data_common.js"></script>        
+        <script src="./data_analyze.js"></script>
+        <script src="./nrfconnect.js"></script>
+
         <script>
             var connected = false;
             var services_discovered = false;
@@ -155,6 +159,7 @@
                     return;
                 });
             }
+
             function toogleSensorNotifications() {
                 console.log("toggleSensorNotifications");
                 if (!connected) {
@@ -243,6 +248,7 @@
                         })
                     })
             }
+
             function connect() {
                 if (connected == false) {
                     console.log("connecting");
@@ -268,7 +274,7 @@
             }
 
             function updateMeasureData() {
-                mean_delay = sum_delay / nb_notif;        
+                let mean_delay = sum_delay / nb_notif;        
                 document.getElementById('frame_max_delay').innerHTML = max_delay;
                 document.getElementById('frame_mean_delay').innerHTML = mean_delay;
                 document.getElementById('frame_nb_notif').innerHTML = nb_notif;
@@ -283,8 +289,8 @@
             function onFrameData(event) {                
                 buffer = event.target.value.buffer;
                 dataview = new DataView(buffer);
-                atime = dataview.getUint32(18, false);
-                // console.log("atime: " + atime);
+                atime = dataview.getUint32(dataview.byteLength - 5, false);
+                console.log("atime: " + atime);
                 if (old_time != -1) {
                     diff_time = atime - old_time;
                     if (diff_time > max_delay) {
@@ -351,9 +357,23 @@
                 let delta_time = computeDeltaTime(sensors_data);
                 return exportJson(delta_time, "deltaTime.json");
             }
-        </script>
 
-        <script src="./data_analyze.js"></script>
+            function handleFileNRFSelect(evt) {
+                let file = evt.target.files[0];
+                let reader = new FileReader();
+                reader.onload = (function(theFile) {
+                    return function(e) {
+                        console.log("File read");
+                        log_text = this.result;
+                        sensors_data = convert_nrfconnect_log(log_text);
+                    };
+                })(file);
+
+                // Read data file
+                reader.readAsText(file);      
+            }
+
+        </script>
     </head>
 
     <body>
@@ -399,11 +419,16 @@
         <button id="btn_analyze" onclick="updateDataAnalyze(sensors_data)">Analyze Data</button>
         <button id="exportFramesJSON" onclick="exportFramesJson();">Export frames json</button>
         <button id="exportDeltaTimeJSON" onclick="exportDeltaTimeJson();">Export delta json</button>        
-       
+        <!-- <button id="importData" onclick="importDataNRF()">Import data from NrfConnect</button> -->
+        <input type="file" id="fileNRF" name="fileNRFConnect" />
+
         <div id="data_analyze">
             <div id="data_delta_frame_time"></div>
             <div id="data_received_time"></div>
         </div>
         <a id="downloadAnchorElem" style="display:none"></a>
     </body>
+    <script>
+      document.getElementById('fileNRF').addEventListener('change', handleFileNRFSelect, false);
+    </script>
 </html>
