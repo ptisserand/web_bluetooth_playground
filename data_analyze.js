@@ -1,13 +1,10 @@
-function computeDeltaTime(data) {
-    let delta_time = [];
-    let old_time = data[0].time;
-    for (let i=1; i < data.length; ++i) {
-        delta_time.push(data[i].time - old_time);
-        old_time = data[i].time;
-    }
-    return delta_time;
-}
+// import {computeDeltaTime} from './data_common.mjs';
 
+/*******************************************************************************
+ * 
+ * 
+ * 
+ *******************************************************************************/
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 30, left: 60};
 //   width = 460 - margin.left - margin.right,
