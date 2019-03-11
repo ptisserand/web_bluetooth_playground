@@ -62,7 +62,7 @@ function convert_nrfconnect_log(full_log) {
             let received_time = convert_nrfconnect_time(frame.time_str) - start_time;
             let values = ios_convert_nrfconnect_frame(frame.frame_str).buffer;
             let atime = extractTimeFromFrame(values);
-            ret.push({'receved_time': received_time, 'time': atime, 'data': values});
+            ret.push({'received_time': received_time, 'time': atime, 'data': values});
         });
         return ret;
     }
