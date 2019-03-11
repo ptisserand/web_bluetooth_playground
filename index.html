@@ -361,6 +361,7 @@
             function handleFileNRFSelect(evt) {
                 let file = evt.target.files[0];
                 let reader = new FileReader();
+                sensors_data = [];
                 reader.onload = (function(theFile) {
                     return function(e) {
                         console.log("File read");
