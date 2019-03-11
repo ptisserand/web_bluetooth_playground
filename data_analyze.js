@@ -76,7 +76,7 @@ function updateDisplayDeltaFrameTime(data) {
     
     // Y axis
     let y = d3.scaleLinear()
-        .domain([0, d3.max(delay_data, function(d) { return d})])
+        .domain([d3.min(delay_data, function(d) {return d}), d3.max(delay_data, function(d) { return d})])
         .range([ height, 0])
     let yAxis = svg.append("g")
         .call(d3.axisLeft(y));
