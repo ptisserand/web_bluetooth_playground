@@ -172,14 +172,14 @@ function updateDisplayAcceleroMollet(data) {
     let svg = getSVG("#data_accelero_mollet", "svg_data_accelero_mollet");
     let sensors = extract_sensors(data);
 
-    updateDisplay3Axis(svg, sensors.cuisse.accel);
+    updateDisplay3Axis(svg, sensors.mollet.accel);
 }
 
 function updateDisplayGyroMollet(data) {
     let svg = getSVG("#data_gyro_mollet", "svg_data_gyro_mollet");
     let sensors = extract_sensors(data);
 
-    updateDisplay3Axis(svg, sensors.cuisse.gyro);
+    updateDisplay3Axis(svg, sensors.mollet.gyro);
 }
 
 function updateDisplayReceivedTime(data) { 
