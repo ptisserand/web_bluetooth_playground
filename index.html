@@ -27,20 +27,26 @@
             var connected_server;
 
             var notifications_enabled = false;
+            var magneto_enabled = false;
+
 
             // presence of services of characteristics
             var has_device_service = false;
             var has_frame_data = false;            
             var has_info_data = false;
+            var has_config_data = false;
+
 
             // characteristic UUIDs
             DEVICE_SERVICE = '0000f00d-0000-1000-8000-00805f9b34fb';
             FRAME_UUID = '0000accc-1212-efde-1523-785fef13d123';            
-            INFO_UUID = '0000accb-1212-efde-1523-785fef13d123';
+            INFO_UUID = '0000acca-1212-efde-1523-785fef13d123';
+            CONFIG_UUID = '0000accb-1212-efde-1523-785fef13d123';
 
             // cached characteristics
             var frame_data;
             var info_data;
+            var config_data;
 
             // for performance measure
             var old_time = -1;
@@ -91,6 +97,7 @@
                 }
 
             }
+
             function discoverDevices() {
                 console.log("discoverDevices");
 
@@ -113,25 +120,34 @@
                     console.log('ERROR : ' + error);
                 })
             }
-            function readInfo() {
-                console.log("readInfo");
+
+            function check_characteristic(has_char) {
                 // state validation
                 if (!connected) {
                     alert("Error: Discover and connect to a device before using this function");
-                    return;
+                    return false;
                 }
                 if (!services_discovered) {
                     alert("Error: Service discovery has not yet completed");
-                    return;
+                    return false;
                 }
                 if (!has_device_service) {
                     alert("Error: The connected device does not contain the device service");
-                    return;
+                    return false;
                 }
-                if (!has_info_data) {
+                if (!has_char) {
                     alert("Error: The connected device does not contain the device information characteristic");
+                    return false;
+                }
+                return true;
+            }
+
+            function readInfo() {
+                console.log("readInfo");
+                if (!check_characteristic(has_info_data)) {
                     return;
                 }
+
                 info_data.readValue()
                 .then(value => {
                     data = new Uint8Array(value.buffer);
@@ -144,24 +160,13 @@
                     alert('Error: ' + error);
                     return;
                 });
+
             }
+
             function readFrame() {
-                console.log("readInfo");
+                console.log("readFrame");
                 // state validation
-                if (!connected) {
-                    alert("Error: Discover and connect to a device before using this function");
-                    return;
-                }
-                if (!services_discovered) {
-                    alert("Error: Service discovery has not yet completed");
-                    return;
-                }
-                if (!has_device_service) {
-                    alert("Error: The connected device does not contain the device service");
-                    return;
-                }
-                if (!has_frame_data) {
-                    alert("Error: The connected device does not contain the frame characteristic");
+                if (!check_characteristic(has_frame_data)) {
                     return;
                 }
                 frame_data.readValue()
@@ -176,24 +181,45 @@
                 });
             }
 
+            function toogleMagneto() {
+                console.log("toggleMagneto");
+                if (!check_characteristic(has_config_data)) {
+                    return;
+                }
+                let buffer = new ArrayBuffer(2);
+                let buffer_view = new DataView(buffer);
+                if (!magneto_enabled) {
+                    buffer_view.setUint8(0, 0x00);
+                    config_data.writeValue(buffer)
+                    .then(_ => {
+                        console.log("magneto enabled");
+                        magneto_enabled = true;
+                    })
+                    .catch(error => {
+                        console.log('Error: ' + error);
+                        alert('Error: ' + error);
+                        return;
+                    });
+                } else {
+                    buffer_view.setUint8(0, 0x01);
+                    config_data.writeValue(buffer)
+                    .then(_ => {
+                        console.log("magneto disabled");
+                        magneto_enabled = false;
+                    })
+                    .catch(error => {
+                        console.log('Error: ' + error);
+                        alert('Error: ' + error);
+                        return;
+                    });
+                }
+            }
+
             function toogleSensorNotifications() {
                 console.log("toggleSensorNotifications");
-                if (!connected) {
-                    alert("Error: Discover and connect to a device before using this functions");
+                if (!check_characteristic(has_frame_data)) {
                     return;
-                }
-                if (!services_discovered) {
-                    alert("Error: Service discovery has not yet completed");
-                    return;
-                }
-                if (!has_device_service) {
-                    alert("Error: The connected device does not contain the device service");
-                    return;
-                }
-                if (!has_frame_data) {
-                    alert("Error: The connected device does not contain the frame data characteristic");
-                    return;
-                }
+                }                
                 if (!notifications_enabled) {
                     frame_data.startNotifications()
                     .then(_ => {
@@ -255,6 +281,12 @@
                                         info_data = characteristic;
                                         has_info_data = true;
                                     }
+                                    if (characteristic.uuid == CONFIG_UUID) {
+                                        console.log('>>> Config');
+                                        config_data = characteristic;
+                                        has_config_data = true;
+                                    }
+
                                     if (services_discovered == service_count && characteristics_discovered == characteristics_count) {
                                         console.log("FINISHED DISCOVERY");
                                         setDiscoveryStatus(true);
@@ -421,7 +453,7 @@
         <h2>Device info</h2>
         <button type="button" class="btn btn-primary" id="btn_readInfo" onclick="readInfo()">Read Info</button>
         <div id="device_info"></div>
-        
+        <button type="button" class="btn btn-primary" id="btn_magneto" onclick="toogleMagneto()">Toggle Magneto</button>
         <h2>Notifications</h2>
         <button type="button" class="btn btn-primary" id="btn_notify" onclick="toogleSensorNotifications()">Toggle Notifications</button>
         <div>
