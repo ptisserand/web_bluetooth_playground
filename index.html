@@ -1,5 +1,11 @@
-<html>
+<!doctype html>
+<html lang="en">
     <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <script src="https://d3js.org/d3.v4.js"></script>
 
         <script src="./data_common.js"></script>        
@@ -399,14 +405,14 @@
             </tr>
         </table>
         <h2>Device Discovery and Connection</h2>
-        <button id="btn_scan" onclick="discoverDevicesOrDisconnect()">Discover Devices</button>
+        <button type="button" class="btn btn-primary" id="btn_scan" onclick="discoverDevicesOrDisconnect()">Discover Devices</button>
         <hr>
         <h2>Device info</h2>
-        <button id="btn_readInfo" onclick="readInfo()">Read Info</button>
+        <button type="button" class="btn btn-primary" id="btn_readInfo" onclick="readInfo()">Read Info</button>
         <div id="device_info"></div>
         
         <h2>Notifications</h2>
-        <button id="btn_notify" onclick="toogleSensorNotifications()">Toggle Notifications</button>
+        <button type="button" class="btn btn-primary" id="btn_notify" onclick="toogleSensorNotifications()">Toggle Notifications</button>
         <div>
             Maximum delay: <span id="frame_max_delay"></span>
         </div>        
@@ -417,19 +423,71 @@
             Mean delay: <span id="frame_mean_delay"></span>
         </div>
         <hr>
-        <button id="btn_analyze" onclick="updateDataAnalyze(sensors_data)">Analyze Data</button>
-        <button id="exportFramesJSON" onclick="exportFramesJson();">Export frames json</button>
-        <button id="exportDeltaTimeJSON" onclick="exportDeltaTimeJson();">Export delta json</button>        
-        <!-- <button id="importData" onclick="importDataNRF()">Import data from NrfConnect</button> -->
-        <input type="file" id="fileNRF" name="fileNRFConnect" />
-
-        <div id="data_analyze">
-            <div id="data_delta_frame_time" width="100%" height="400"></div>
-            <div id="data_received_time" width="100%" height="200"></div>
+        <div class="container w-100">
+            <div class="row">
+                <div class="col">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="btn_analyze" onclick="updateDataAnalyze(sensors_data)">Update Data display</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="exportFramesJSON" onclick="exportFramesJson();">Export frames json</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="exportDeltaTimeJSON" onclick="exportDeltaTimeJson();">Export delta json</button>
+                </div>
+                <div class="col">
+                    <!-- <button id="importData" onclick="importDataNRF()">Import data from NrfConnect</button> -->
+                    <input type="file" class="btn btn-lg btn-block" id="fileNRF" name="fileNRFConnect" />
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div id="data_analyze" class="column">
+                <div class="row">
+                    <div id="data_delta_frame_time" class="w-100 time" style="height:500px;"></div>
+                </div>
+                <div class="row">
+                    <div id="data_accelero_cuisse" class="w-100 accelero cuisse" style="height: 500px;"></div>
+                </div>
+                <div class="row">
+                    <div id="data_gyro_cuisse" class="w-100 gyro cuisse" style="height: 500px;"></div>
+                </div>
+                <div class="row">
+                    <div id="data_accelero_mollet" class="w-100 accelero mollet" style="height: 500px;"></div>
+                </div>
+                <div class="row">
+                    <div id="data_gyro_mollet" class="w-100 gyro mollet" style="height: 500px;"></div>
+                </div>                
+                <div class="row">
+                    <div id="data_received_time" class="w-100 time" style="height:500px;"></div>
+                </div>
+                <div class="row">
+                    <div id="data_magneto_cuisse" class="w-100 magneto cuisse" style="height: 500px;"></div>
+                </div>
+                <div class="row">
+                    <div id="data_magneto_mollet" class="w-100 magneto mollet" style="height: 500px;"></div>
+                </div>
+            </div>
         </div>
         <a id="downloadAnchorElem" style="display:none"></a>
+        <script>
+                document.getElementById('fileNRF').addEventListener('change', handleFileNRFSelect, false);
+
+                //We will build a basic function to handle window resizing.
+                function resize() {
+                    width = document.getElementById('data_delta_frame_time').clientWidth;
+                    height = document.getElementById('data_delta_frame_time').clientHeight;
+                    d3.select('#data_delta_frame_time svg')
+                        .attr('width', width)
+                        .attr('height', height);
+                }
+
+                window.onresize = resize;
+                //Call our resize function if the window size is changed.
+        </script>
+          
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     </body>
-    <script>
-      document.getElementById('fileNRF').addEventListener('change', handleFileNRFSelect, false);
-    </script>
 </html>
