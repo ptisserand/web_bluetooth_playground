@@ -6,6 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <style>
+        .sensor {
+            height: 400px;
+        }
+        </style>
         <script src="https://d3js.org/d3.v4.js"></script>
 
         <script src="./data_common.js"></script>        
@@ -14,6 +19,8 @@
         <script src="./nrfconnect.js"></script>
 
         <script>
+            var timer_id = null;
+            var update_data_display_period = 500; // ms
             var connected = false;
             var services_discovered = false;
             var selected_device;
@@ -48,11 +55,13 @@
                 if (status == true) {
                     start_date = +Date.now();
                     sensors_data = [];
+                    timer_id = setInterval(function() { updateDataDisplay(sensors_data)}, update_data_display_period);
                 } else {
                     old_time = -1;
                     max_delay = 0;
                     nb_notif = 0;
                     sum_delay = 0;
+                    clearInterval(timer_id);
                 }
                 notifications_enabled = status;
                 document.getElementById('status_notifications').innerHTML = status;
@@ -446,28 +455,28 @@
         <div class="container">
             <div id="data_analyze" class="column">
                 <div class="row">
-                    <div id="data_delta_frame_time" class="w-100 time" style="height:500px;"></div>
+                    <div id="data_delta_frame_time" class="w-100 time sensor"></div>
                 </div>
                 <div class="row">
-                    <div id="data_accelero_cuisse" class="w-100 accelero cuisse" style="height: 500px;"></div>
+                    <div id="data_accelero_cuisse" class="w-100 accelero cuisse sensor"></div>
                 </div>
                 <div class="row">
-                    <div id="data_gyro_cuisse" class="w-100 gyro cuisse" style="height: 500px;"></div>
+                    <div id="data_gyro_cuisse" class="w-100 gyro cuisse sensor"></div>
                 </div>
                 <div class="row">
-                    <div id="data_accelero_mollet" class="w-100 accelero mollet" style="height: 500px;"></div>
+                    <div id="data_accelero_mollet" class="w-100 accelero mollet sensor"></div>
                 </div>
                 <div class="row">
-                    <div id="data_gyro_mollet" class="w-100 gyro mollet" style="height: 500px;"></div>
+                    <div id="data_gyro_mollet" class="w-100 gyro mollet sensor"></div>
                 </div>                
                 <div class="row">
-                    <div id="data_received_time" class="w-100 time" style="height:500px;"></div>
+                    <div id="data_received_time" class="w-100 time sensor"></div>
                 </div>
                 <div class="row">
-                    <div id="data_magneto_cuisse" class="w-100 magneto cuisse" style="height: 500px;"></div>
+                    <div id="data_magneto_cuisse" class="w-100 magneto cuisse sensor"></div>
                 </div>
                 <div class="row">
-                    <div id="data_magneto_mollet" class="w-100 magneto mollet" style="height: 500px;"></div>
+                    <div id="data_magneto_mollet" class="w-100 magneto mollet sensor"></div>
                 </div>
             </div>
         </div>
