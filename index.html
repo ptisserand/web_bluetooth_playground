@@ -373,6 +373,7 @@
                         console.log("File read");
                         log_text = this.result;
                         sensors_data = convert_nrfconnect_log(log_text);
+                        updateDataDisplay(sensors_data);
                     };
                 })(file);
 
@@ -426,7 +427,7 @@
         <div class="container w-100">
             <div class="row">
                 <div class="col">
-                    <button type="button" class="btn btn-primary btn-lg btn-block" id="btn_analyze" onclick="updateDataAnalyze(sensors_data)">Update Data display</button>
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="btn_analyze" onclick="updateDataDisplay(sensors_data)">Update Data display</button>
                 </div>
                 <div class="col">
                     <button type="button" class="btn btn-primary btn-lg btn-block" id="exportFramesJSON" onclick="exportFramesJson();">Export frames json</button>

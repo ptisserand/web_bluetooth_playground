@@ -170,7 +170,7 @@ function updateDisplayDeltaFrameTime(data) {
     updateDisplay1D(svg, delay_data);    
 }
 
-function updateDataAnalyze(data) {
+function updateDataDisplay(data) {
     if (data.length == 0) {
         alert("ERROR: No data available");
         return;
