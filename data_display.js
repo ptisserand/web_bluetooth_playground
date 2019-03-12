@@ -182,6 +182,20 @@ function updateDisplayGyroMollet(data) {
     updateDisplay3Axis(svg, sensors.mollet.gyro);
 }
 
+function updateDisplayMagnetoCuisse(data) {
+    let svg = getSVG("#data_magneto_cuisse", "svg_data_magneto_cuisse");
+    let sensors = extract_magneto(data);
+
+    updateDisplay3Axis(svg, sensors.cuisse.magneto);
+}
+
+function updateDisplayMagnetoMollet(data) {
+    let svg = getSVG("#data_magneto_mollet", "svg_data_magneto_mollet");
+    let sensors = extract_magneto(data);
+
+    updateDisplay3Axis(svg, sensors.mollet.magneto);
+}
+
 function updateDisplayReceivedTime(data) { 
     let svg = getSVG("#data_received_time", "svg_data_received_time");    
     let data_2d = [];    
@@ -210,4 +224,7 @@ function updateDataDisplay(data) {
     updateDisplayGyroCuisse(data);
     updateDisplayAcceleroMollet(data);
     updateDisplayGyroMollet(data);
+
+    updateDisplayMagnetoCuisse(data);
+    updateDisplayMagnetoMollet(data);
 }
