@@ -6,7 +6,7 @@
  * 
  *******************************************************************************/
 // set the dimensions and margins of the graph
-var margin = {top: 10, right: 30, bottom: 30, left: 30};
+var margin = {top: 10, right: 30, bottom: 30, left: 60};
 
 function getSVG(cont_name, id) {
     // append the svg object to the body of the page
@@ -103,7 +103,7 @@ function updateDisplay3Axis(svg, data_3axis) {
        .range([0, width]);
     let tAxis = svg.append("g")
        .attr("transform", "translate(0," + height + ")")
-       .call(d3.axisBottom(x));
+       .call(d3.axisBottom(t));
     
     let xmin = d3.min(data_3axis, function(d) {return d.x});
     let xmax = d3.max(data_3axis, function(d) {return d.x});
@@ -128,29 +128,58 @@ function updateDisplay3Axis(svg, data_3axis) {
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
-            .x(function(d) { return x(d.time)})
+            .x(function(d) { return t(d.time)})
             .y(function(d) { return y(d.x)})
         );
 
     svg.append("path")
         .datum(data_3axis)
         .attr("fill", "none")
-        .attr("stroke", "steelred")
+        .attr("stroke", "red")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
-            .x(function(d) { return x(d.time)})
+            .x(function(d) { return t(d.time)})
             .y(function(d) { return y(d.y)})
         );
     
     svg.append("path")
         .datum(data_3axis)
         .attr("fill", "none")
-        .attr("stroke", "steelgreen")
+        .attr("stroke", "green")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
-            .x(function(d) { return x(d.time)})
+            .x(function(d) { return t(d.time)})
             .y(function(d) { return y(d.z)})
         );
+}
+
+function updateDisplayAcceleroCuisse(data) {
+    let svg = getSVG("#data_accelero_cuisse", "svg_data_accelero_cuisse");
+    let sensors = extract_sensors(data);
+
+    updateDisplay3Axis(svg, sensors.cuisse.accel);
+}
+
+function updateDisplayGyroCuisse(data) {
+    let svg = getSVG("#data_gyro_cuisse", "svg_data_gyro_cuisse");
+    let sensors = extract_sensors(data);
+
+    updateDisplay3Axis(svg, sensors.cuisse.gyro);
+}
+
+
+function updateDisplayAcceleroMollet(data) {
+    let svg = getSVG("#data_accelero_mollet", "svg_data_accelero_mollet");
+    let sensors = extract_sensors(data);
+
+    updateDisplay3Axis(svg, sensors.cuisse.accel);
+}
+
+function updateDisplayGyroMollet(data) {
+    let svg = getSVG("#data_gyro_mollet", "svg_data_gyro_mollet");
+    let sensors = extract_sensors(data);
+
+    updateDisplay3Axis(svg, sensors.cuisse.gyro);
 }
 
 function updateDisplayReceivedTime(data) { 
@@ -177,4 +206,8 @@ function updateDataDisplay(data) {
     }
     updateDisplayDeltaFrameTime(data);
     updateDisplayReceivedTime(data);
+    updateDisplayAcceleroCuisse(data);
+    updateDisplayGyroCuisse(data);
+    updateDisplayAcceleroMollet(data);
+    updateDisplayGyroMollet(data);
 }
