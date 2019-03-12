@@ -306,7 +306,7 @@
                 buffer = event.target.value.buffer;
                 dataview = new DataView(buffer);
                 atime = dataview.getUint32(dataview.byteLength - 5, false);
-                console.log("atime: " + atime);
+                // console.log("atime: " + atime);
                 if (old_time != -1) {
                     diff_time = atime - old_time;
                     if (diff_time > max_delay) {
