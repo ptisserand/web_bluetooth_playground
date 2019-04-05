@@ -102,7 +102,7 @@
                 console.log("discoverDevices");
 
                 var options = {
-                    filters: [ {namePrefix: 'Panda'}],
+                    filters: [ {namePrefix: 'Panda'}, {namePrefix: 'TedKo'}],
                     optionalServices: [DEVICE_SERVICE],
                 }
 
@@ -186,7 +186,7 @@
                 if (!check_characteristic(has_config_data)) {
                     return;
                 }
-                let buffer = new ArrayBuffer(2);
+                let buffer = new ArrayBuffer(1);
                 let buffer_view = new DataView(buffer);
                 if (!magneto_enabled) {
                     buffer_view.setUint8(0, 0x00);
@@ -214,6 +214,32 @@
                     });
                 }
             }
+
+            function toogleTransport() {
+                console.log("toggleTransport");
+                if (!check_characteristic(has_config_data)) {
+                    return;
+                }
+                let buffer = config_data.readValue()
+                .then(value => {
+                    buffer = value.buffer;
+                let buffer_view = new DataView(buffer);
+                let current = buffer_view.getUint8(0);
+                current = current | 0x02; // enable transport mode
+                buffer_view.setUint8(0, current);
+
+                config_data.writeValue(buffer)
+                    .then(_ => {
+                        console.log("transport mode enabled");
+                    })
+                    .catch(error => {
+                        console.log('Error: ' + error);
+                        alert('Error: ' + error);
+                        return;
+                    }); 
+                });            
+            }
+
 
             function toogleSensorNotifications() {
                 console.log("toggleSensorNotifications");
@@ -454,6 +480,7 @@
         <button type="button" class="btn btn-primary" id="btn_readInfo" onclick="readInfo()">Read Info</button>
         <div id="device_info"></div>
         <button type="button" class="btn btn-primary" id="btn_magneto" onclick="toogleMagneto()">Toggle Magneto</button>
+        <button type="button" class="btn btn-primary" id="btn_magneto" onclick="toogleTransport()">Toggle Transport</button>
         <h2>Notifications</h2>
         <button type="button" class="btn btn-primary" id="btn_notify" onclick="toogleSensorNotifications()">Toggle Notifications</button>
         <div>
